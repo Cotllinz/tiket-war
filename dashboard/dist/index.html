@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎫 Ticket War Dashboard — BABYMONSTER CHOOM</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0a0f;
+      --bg-secondary: #12121a;
+      --bg-card: #1a1a28;
+      --bg-card-hover: #22223a;
+      --border: #2a2a40;
+      --text-primary: #e8e8f0;
+      --text-secondary: #8888a8;
+      --text-muted: #55556a;
+      --accent-blue: #5b8aff;
+      --accent-purple: #a855f7;
+      --accent-green: #34d399;
+      --accent-red: #f43f5e;
+      --accent-orange: #fb923c;
+      --accent-yellow: #facc15;
+      --gradient-primary: linear-gradient(135deg, #5b8aff, #a855f7);
+      --gradient-success: linear-gradient(135deg, #34d399, #06b6d4);
+      --gradient-danger: linear-gradient(135deg, #f43f5e, #fb923c);
+      --glow-blue: 0 0 20px rgba(91, 138, 255, 0.3);
+      --glow-green: 0 0 20px rgba(52, 211, 153, 0.3);
+      --glow-red: 0 0 20px rgba(244, 63, 94, 0.3);
+      --radius: 12px;
+      --radius-lg: 16px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Animated background gradient */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(ellipse at 20% 20%, rgba(91, 138, 255, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(168, 85, 247, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(52, 211, 153, 0.03) 0%, transparent 60%);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      margin-bottom: 20px;
+      backdrop-filter: blur(10px);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .header-logo {
+      font-size: 32px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    .header-title h1 {
+      font-size: 20px;
+      font-weight: 800;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header-title p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    /* Countdown */
+    .countdown-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 20px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .countdown-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--gradient-primary);
+    }
+
+    .countdown-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+    }
+
+    .countdown-timer {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .countdown-unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .countdown-value {
+      font-size: 48px;
+      font-weight: 900;
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+    }
+
+    .countdown-separator {
+      font-size: 48px;
+      font-weight: 900;
+      color: var(--text-muted);
+      line-height: 1;
+      animation: blink 1s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .countdown-name {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 4px;
+    }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border: none;
+      border-radius: var(--radius);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 255, 255, 0);
+      transition: background 0.2s;
+    }
+
+    .btn:hover::after {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-start {
+      background: var(--gradient-success);
+      color: #fff;
+      box-shadow: var(--glow-green);
+    }
+
+    .btn-stop {
+      background: var(--gradient-danger);
+      color: #fff;
+      box-shadow: var(--glow-red);
+    }
+
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Grid Layout */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .grid-full {
+      grid-column: 1 / -1;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-header h3 {
+      font-size: 14px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-body {
+      padding: 16px 20px;
+    }
+
+    /* Worker Status */
+    .worker-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .worker-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background: var(--bg-secondary);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      transition: all 0.3s ease;
+    }
+
+    .worker-item.success {
+      border-color: var(--accent-green);
+      box-shadow: var(--glow-green);
+      animation: successPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes successPulse {
+      0%, 100% { box-shadow: 0 0 10px rgba(52, 211, 153, 0.2); }
+      50% { box-shadow: 0 0 30px rgba(52, 211, 153, 0.4); }
+    }
+
+    .worker-item.error {
+      border-color: var(--accent-red);
+    }
+
+    .worker-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .worker-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .worker-name {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .worker-email {
+      font-size: 11px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .worker-status {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .status-badge.idle { background: rgba(85, 85, 106, 0.3); color: var(--text-muted); }
+    .status-badge.working { background: rgba(91, 138, 255, 0.2); color: var(--accent-blue); }
+    .status-badge.waiting { background: rgba(251, 146, 60, 0.2); color: var(--accent-orange); }
+    .status-badge.success { background: rgba(52, 211, 153, 0.2); color: var(--accent-green); }
+    .status-badge.error { background: rgba(244, 63, 94, 0.2); color: var(--accent-red); }
+
+    /* Log Viewer */
+    .log-container {
+      height: 400px;
+      overflow-y: auto;
+      padding: 12px;
+      background: #0d0d15;
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      line-height: 1.8;
+    }
+
+    .log-container::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .log-container::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+    }
+
+    .log-entry {
+      display: flex;
+      gap: 8px;
+      padding: 2px 0;
+      border-bottom: 1px solid rgba(42, 42, 64, 0.3);
+    }
+
+    .log-time {
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .log-worker {
+      color: var(--accent-purple);
+      flex-shrink: 0;
+      min-width: 80px;
+    }
+
+    .log-phase {
+      color: var(--accent-blue);
+      flex-shrink: 0;
+      min-width: 100px;
+    }
+
+    .log-msg { color: var(--text-primary); }
+    .log-msg.error { color: var(--accent-red); }
+    .log-msg.warn { color: var(--accent-orange); }
+    .log-msg.success { color: var(--accent-green); }
+
+    /* Screenshot Viewer */
+    .screenshot-container {
+      text-align: center;
+      padding: 16px;
+    }
+
+    .screenshot-container img {
+      max-width: 100%;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .screenshot-placeholder {
+      color: var(--text-muted);
+      padding: 60px 20px;
+      font-size: 14px;
+    }
+
+    /* OTP Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      max-width: 400px;
+      width: 90%;
+    }
+
+    .modal h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    .modal p {
+      color: var(--text-secondary);
+      font-size: 13px;
+      margin-bottom: 20px;
+    }
+
+    .modal input {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-primary);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 24px;
+      text-align: center;
+      letter-spacing: 8px;
+      margin-bottom: 16px;
+    }
+
+    .modal input:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+      box-shadow: var(--glow-blue);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .modal-actions .btn {
+      flex: 1;
+    }
+
+    /* Success Banner */
+    .success-banner {
+      display: none;
+      background: var(--gradient-success);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 20px;
+      text-align: center;
+      animation: successPulse 2s ease-in-out infinite;
+    }
+
+    .success-banner.active {
+      display: block;
+    }
+
+    .success-banner h2 {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .success-banner p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .app { padding: 12px; }
+      .countdown-value { font-size: 32px; }
+      .countdown-separator { font-size: 32px; }
+      .header { flex-direction: column; gap: 12px; text-align: center; }
+      .controls { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-left">
+        <span class="header-logo">🎫</span>
+        <div class="header-title">
+          <h1>TICKET WAR DASHBOARD</h1>
+          <p>BABYMONSTER CHOOM IN JAKARTA 2026</p>
+        </div>
+      </div>
+      <div>
+        <span id="connectionStatus" class="status-badge idle">● Disconnected</span>
+      </div>
+    </div>
+
+    <!-- Success Banner -->
+    <div id="successBanner" class="success-banner">
+      <h2>🎉 TIKET BERHASIL DIPESAN!</h2>
+      <p>Segera lakukan pembayaran sebelum batas waktu habis!</p>
+    </div>
+
+    <!-- Countdown -->
+    <div class="countdown-card">
+      <div class="countdown-label">War Dimulai Dalam</div>
+      <div class="countdown-timer">
+        <div class="countdown-unit">
+          <span id="countDays" class="countdown-value">00</span>
+          <span class="countdown-name">Hari</span>
+        </div>
+        <span class="countdown-separator">:</span>
+        <div class="countdown-unit">
+          <span id="countHours" class="countdown-value">00</span>
+          <span class="countdown-name">Jam</span>
+        </div>
+        <span class="countdown-separator">:</span>
+        <div class="countdown-unit">
+          <span id="countMinutes" class="countdown-value">00</span>
+          <span class="countdown-name">Menit</span>
+        </div>
+        <span class="countdown-separator">:</span>
+        <div class="countdown-unit">
+          <span id="countSeconds" class="countdown-value">00</span>
+          <span class="countdown-name">Detik</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <button id="btnStart" class="btn btn-start" onclick="startWar()">▶️ Start War</button>
+      <button id="btnStop" class="btn btn-stop" onclick="stopWar()" disabled>⏹️ Stop</button>
+      <button class="btn btn-secondary" onclick="refreshStatus()">🔄 Refresh</button>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="grid">
+      <!-- Worker Status -->
+      <div class="card">
+        <div class="card-header">
+          <h3>👥 Worker Status</h3>
+          <span id="workerCount" class="status-badge idle">0 workers</span>
+        </div>
+        <div class="card-body">
+          <div id="workerList" class="worker-list">
+            <div class="screenshot-placeholder">
+              Belum ada worker aktif. Klik "Start War" untuk memulai.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Screenshot -->
+      <div class="card">
+        <div class="card-header">
+          <h3>📸 Live Browser</h3>
+          <select id="screenshotWorker" style="background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-primary); border-radius: 6px; padding: 4px 8px; font-size: 12px;">
+            <option value="">Select Worker</option>
+          </select>
+        </div>
+        <div class="card-body screenshot-container">
+          <div id="screenshotView" class="screenshot-placeholder">
+            Screenshot akan muncul saat bot berjalan...
+          </div>
+        </div>
+      </div>
+
+      <!-- Log Viewer -->
+      <div class="card grid-full">
+        <div class="card-header">
+          <h3>📋 Live Logs</h3>
+          <button class="btn btn-secondary" onclick="clearLogs()" style="padding: 6px 12px; font-size: 12px;">Clear</button>
+        </div>
+        <div class="card-body">
+          <div id="logContainer" class="log-container"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OTP Modal -->
+    <div id="otpModal" class="modal-overlay">
+      <div class="modal">
+        <h3>🔐 OTP Required</h3>
+        <p>Masukkan kode OTP yang dikirim ke <span id="otpWorkerEmail"></span></p>
+        <input id="otpInput" type="text" maxlength="6" placeholder="______" autofocus>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" onclick="closeOtpModal()">Cancel</button>
+          <button class="btn btn-start" onclick="submitOtp()">Submit OTP</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // === State ===
+    const API_URL = window.location.hostname === 'localhost' 
+      ? `http://localhost:4000` 
+      : '';
+    const WS_URL = `ws://${window.location.hostname}:4000`;
+    
+    let ws = null;
+    let workers = {};
+    let selectedScreenshotWorker = '';
+    let otpWorkerId = '';
+    let warStartTime = null;
+    let countdownInterval = null;
+
+    // === WebSocket ===
+    function connectWebSocket() {
+      ws = new WebSocket(WS_URL);
+
+      ws.onopen = () => {
+        document.getElementById('connectionStatus').className = 'status-badge success';
+        document.getElementById('connectionStatus').textContent = '● Connected';
+      };
+
+      ws.onclose = () => {
+        document.getElementById('connectionStatus').className = 'status-badge error';
+        document.getElementById('connectionStatus').textContent = '● Disconnected';
+        setTimeout(connectWebSocket, 3000);
+      };
+
+      ws.onmessage = (event) => {
+        const { type, data } = JSON.parse(event.data);
+
+        switch (type) {
+          case 'status':
+            updateAllWorkers(data.workers);
+            break;
+          case 'workerStatus':
+            updateWorkerStatus(data);
+            break;
+          case 'screenshot':
+            updateScreenshot(data);
+            break;
+          case 'log':
+            addLogEntry(data);
+            break;
+          case 'paymentReached':
+            showSuccessBanner(data);
+            break;
+        }
+      };
+    }
+
+    // === Worker Status ===
+    function updateAllWorkers(workerList) {
+      workerList.forEach(updateWorkerStatus);
+    }
+
+    function updateWorkerStatus(status) {
+      workers[status.id] = status;
+      renderWorkers();
+
+      // Check for OTP requirement
+      if (status.phase === 'otp-required') {
+        showOtpModal(status.id, status.accountEmail);
+      }
+
+      // Update screenshot worker selector
+      const select = document.getElementById('screenshotWorker');
+      const existing = Array.from(select.options).map(o => o.value);
+      if (!existing.includes(status.id)) {
+        const option = document.createElement('option');
+        option.value = status.id;
+        option.textContent = `${status.id} (${status.accountEmail})`;
+        select.appendChild(option);
+      }
+    }
+
+    function renderWorkers() {
+      const container = document.getElementById('workerList');
+      const workerArray = Object.values(workers);
+
+      if (workerArray.length === 0) {
+        container.innerHTML = '<div class="screenshot-placeholder">Belum ada worker aktif.</div>';
+        return;
+      }
+
+      container.innerHTML = workerArray.map(w => {
+        const phaseInfo = getPhaseInfo(w.phase);
+        const isSuccess = w.phase === 'payment-reached' || w.phase === 'completed';
+        const isError = w.phase === 'error';
+
+        return `
+          <div class="worker-item ${isSuccess ? 'success' : ''} ${isError ? 'error' : ''}">
+            <div class="worker-avatar" style="background: ${phaseInfo.bg}">${phaseInfo.icon}</div>
+            <div class="worker-info">
+              <div class="worker-name">${w.id}</div>
+              <div class="worker-email">${w.accountEmail}</div>
+              <div class="worker-status">${w.message}</div>
+              ${w.ticketCategory ? `<div class="worker-status">🎫 ${w.ticketCategory}</div>` : ''}
+              ${w.queuePosition ? `<div class="worker-status">📊 Posisi: ${w.queuePosition}</div>` : ''}
+            </div>
+            <span class="status-badge ${phaseInfo.badgeClass}">${phaseInfo.label}</span>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('workerCount').textContent = `${workerArray.length} workers`;
+    }
+
+    function getPhaseInfo(phase) {
+      const map = {
+        'idle':             { icon: '💤', bg: 'rgba(85,85,106,0.3)', label: 'Idle', badgeClass: 'idle' },
+        'starting':         { icon: '🚀', bg: 'rgba(91,138,255,0.3)', label: 'Starting', badgeClass: 'working' },
+        'logging-in':       { icon: '🔑', bg: 'rgba(91,138,255,0.3)', label: 'Login', badgeClass: 'working' },
+        'otp-required':     { icon: '🔐', bg: 'rgba(251,146,60,0.3)', label: 'OTP', badgeClass: 'waiting' },
+        'navigating':       { icon: '🌐', bg: 'rgba(91,138,255,0.3)', label: 'Navigate', badgeClass: 'working' },
+        'in-waiting-room':  { icon: '⏳', bg: 'rgba(251,146,60,0.3)', label: 'Queue', badgeClass: 'waiting' },
+        'selecting-ticket': { icon: '🎫', bg: 'rgba(168,85,247,0.3)', label: 'Selecting', badgeClass: 'working' },
+        'checking-out':     { icon: '🛒', bg: 'rgba(168,85,247,0.3)', label: 'Checkout', badgeClass: 'working' },
+        'selecting-payment':{ icon: '💳', bg: 'rgba(168,85,247,0.3)', label: 'Payment', badgeClass: 'working' },
+        'payment-reached':  { icon: '🎉', bg: 'rgba(52,211,153,0.3)', label: 'SUCCESS!', badgeClass: 'success' },
+        'completed':        { icon: '✅', bg: 'rgba(52,211,153,0.3)', label: 'Done', badgeClass: 'success' },
+        'error':            { icon: '❌', bg: 'rgba(244,63,94,0.3)', label: 'Error', badgeClass: 'error' },
+        'stopped':          { icon: '⏹', bg: 'rgba(85,85,106,0.3)', label: 'Stopped', badgeClass: 'idle' },
+      };
+      return map[phase] || map['idle'];
+    }
+
+    // === Screenshot ===
+    function updateScreenshot(data) {
+      const selected = document.getElementById('screenshotWorker').value;
+      if (!selected || selected === data.workerId) {
+        const container = document.getElementById('screenshotView');
+        container.innerHTML = `<img src="data:image/png;base64,${data.base64}" alt="Browser screenshot">`;
+      }
+    }
+
+    // === Logs ===
+    function addLogEntry(entry) {
+      const container = document.getElementById('logContainer');
+      const time = new Date(entry.time).toLocaleTimeString('id-ID');
+      const level = entry.level || 'info';
+      
+      let msgClass = '';
+      if (level === 'error') msgClass = 'error';
+      else if (level === 'warn') msgClass = 'warn';
+      else if (entry.msg?.includes('✅') || entry.msg?.includes('🎉')) msgClass = 'success';
+
+      const div = document.createElement('div');
+      div.className = 'log-entry';
+      div.innerHTML = `
+        <span class="log-time">${time}</span>
+        <span class="log-worker">${entry.worker || '-'}</span>
+        <span class="log-phase">${entry.phase || '-'}</span>
+        <span class="log-msg ${msgClass}">${entry.msg || ''}</span>
+      `;
+
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+
+      // Limit log entries
+      while (container.children.length > 500) {
+        container.removeChild(container.firstChild);
+      }
+    }
+
+    function clearLogs() {
+      document.getElementById('logContainer').innerHTML = '';
+    }
+
+    // === OTP Modal ===
+    function showOtpModal(workerId, email) {
+      otpWorkerId = workerId;
+      document.getElementById('otpWorkerEmail').textContent = email;
+      document.getElementById('otpModal').classList.add('active');
+      document.getElementById('otpInput').focus();
+    }
+
+    function closeOtpModal() {
+      document.getElementById('otpModal').classList.remove('active');
+      document.getElementById('otpInput').value = '';
+      otpWorkerId = '';
+    }
+
+    async function submitOtp() {
+      const otp = document.getElementById('otpInput').value;
+      if (!otp || !otpWorkerId) return;
+
+      try {
+        const res = await fetch(`${API_URL}/api/otp`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ workerId: otpWorkerId, otp }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          closeOtpModal();
+        } else {
+          alert('OTP gagal! Coba lagi.');
+        }
+      } catch (e) {
+        alert('Error: ' + e.message);
+      }
+    }
+
+    // === Success Banner ===
+    function showSuccessBanner(data) {
+      document.getElementById('successBanner').classList.add('active');
+      // Play sound
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C E G C
+        notes.forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.frequency.value = freq;
+          osc.type = 'sine';
+          gain.gain.value = 0.3;
+          osc.start(ctx.currentTime + i * 0.2);
+          osc.stop(ctx.currentTime + i * 0.2 + 0.3);
+        });
+      } catch (e) {}
+    }
+
+    // === API Calls ===
+    async function startWar() {
+      try {
+        document.getElementById('btnStart').disabled = true;
+        document.getElementById('btnStop').disabled = false;
+        
+        const res = await fetch(`${API_URL}/api/start`, { method: 'POST' });
+        const data = await res.json();
+        
+        if (!data.success) {
+          alert('Error: ' + (data.error || 'Unknown error'));
+          document.getElementById('btnStart').disabled = false;
+          document.getElementById('btnStop').disabled = true;
+        }
+
+        addLogEntry({ time: Date.now(), worker: 'SYSTEM', phase: 'CONTROL', msg: '🚀 War started!' });
+      } catch (e) {
+        alert('Error: ' + e.message);
+        document.getElementById('btnStart').disabled = false;
+      }
+    }
+
+    async function stopWar() {
+      try {
+        await fetch(`${API_URL}/api/stop`, { method: 'POST' });
+        document.getElementById('btnStart').disabled = false;
+        document.getElementById('btnStop').disabled = true;
+        addLogEntry({ time: Date.now(), worker: 'SYSTEM', phase: 'CONTROL', msg: '⏹️ War stopped' });
+      } catch (e) {
+        alert('Error: ' + e.message);
+      }
+    }
+
+    async function refreshStatus() {
+      try {
+        const res = await fetch(`${API_URL}/api/status`);
+        const data = await res.json();
+        if (data.workers) updateAllWorkers(data.workers);
+      } catch (e) {
+        console.error('Status refresh failed:', e);
+      }
+    }
+
+    // === Countdown ===
+    async function initCountdown() {
+      try {
+        const res = await fetch(`${API_URL}/api/countdown`);
+        const data = await res.json();
+        warStartTime = new Date(data.warStartTime);
+        updateCountdown();
+        countdownInterval = setInterval(updateCountdown, 1000);
+      } catch (e) {
+        console.error('Countdown init failed:', e);
+      }
+    }
+
+    function updateCountdown() {
+      if (!warStartTime) return;
+      
+      const now = new Date();
+      let diff = warStartTime.getTime() - now.getTime();
+      
+      if (diff <= 0) {
+        document.getElementById('countDays').textContent = '00';
+        document.getElementById('countHours').textContent = '00';
+        document.getElementById('countMinutes').textContent = '00';
+        document.getElementById('countSeconds').textContent = '00';
+        document.querySelector('.countdown-label').textContent = '🔥 WAR SUDAH DIMULAI!';
+        return;
+      }
+
+      const days = Math.floor(diff / 86400000);
+      diff %= 86400000;
+      const hours = Math.floor(diff / 3600000);
+      diff %= 3600000;
+      const minutes = Math.floor(diff / 60000);
+      diff %= 60000;
+      const seconds = Math.floor(diff / 1000);
+
+      document.getElementById('countDays').textContent = days.toString().padStart(2, '0');
+      document.getElementById('countHours').textContent = hours.toString().padStart(2, '0');
+      document.getElementById('countMinutes').textContent = minutes.toString().padStart(2, '0');
+      document.getElementById('countSeconds').textContent = seconds.toString().padStart(2, '0');
+    }
+
+    // === Enter key for OTP ===
+    document.getElementById('otpInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') submitOtp();
+    });
+
+    // === Init ===
+    connectWebSocket();
+    initCountdown();
+    refreshStatus();
+  </script>
+</body>
+</html>
