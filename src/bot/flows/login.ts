@@ -25,8 +25,12 @@ export async function loginFlow(
   logger.info({ phase: 'LOGIN' }, `Memulai login untuk ${identifier}...`);
 
   try {
-    // Step 1: Navigate to tiket.com
-    await page.goto('https://www.tiket.com/id-id', {
+    // Step 1: Navigate to target event page instead of homepage
+    const targetUrl = config.event.is_test && config.event.test_url
+      ? config.event.test_url
+      : config.event.url || 'https://www.tiket.com/id-id';
+
+    await page.goto(targetUrl, {
       waitUntil: 'domcontentloaded',
       timeout: 30000,
     });
@@ -51,7 +55,23 @@ export async function loginFlow(
     }
     await humanDelay(config.behavior);
 
-    // Step 4: Wait for login form
+    // Step 4: Wait for login options or input form
+    try {
+      logger.info({ phase: 'LOGIN' }, 'Mencari pilihan login "Lanjut dengan nomor HP atau email"...');
+      const optionBtn = await page.waitForSelector(SELECTORS.login.phoneEmailLoginOptionButton, { timeout: 4000 });
+      if (optionBtn) {
+        const visible = await optionBtn.isVisible().catch(() => false);
+        if (visible) {
+          logger.info({ phase: 'LOGIN' }, 'Mengeklik pilihan "Lanjut dengan nomor HP atau email"...');
+          await optionBtn.click();
+          await humanDelay(config.behavior);
+        }
+      }
+    } catch {
+      logger.info({ phase: 'LOGIN' }, 'Tombol pilihan login tidak ditemukan/tidak tampil, mungkin langsung ke halaman input.');
+    }
+
+    // Wait for the email/phone input field to be visible
     await page.waitForSelector(SELECTORS.login.emailInput, { timeout: 10000 }).catch(() => {});
     
     // Some sites have email-first flow
@@ -190,7 +210,7 @@ async function clickLoginButton(page: Page, config: WarConfig): Promise<boolean>
   for (const selector of selectors) {
     try {
       const el = await page.$(selector);
-      if (el) {
+      if (el && await el.isVisible()) {
         await humanClick(page, selector, config.behavior);
         return true;
       }
@@ -198,22 +218,61 @@ async function clickLoginButton(page: Page, config: WarConfig): Promise<boolean>
       continue;
     }
   }
+
+  // Fallback: Try clicking 'Beli tiket' to trigger the login popup if header button is hidden
+  try {
+    const buySelectors = SELECTORS.ticket.initialBuyButton.split(', ');
+    for (const buySelector of buySelectors) {
+      const buyBtn = await page.$(buySelector);
+      if (buyBtn && await buyBtn.isVisible()) {
+        await buyBtn.click();
+        await page.waitForTimeout(1500); // Wait for popup to appear
+        
+        // Try finding the login button (e.g. "Log in") in the new popup
+        for (const selector of selectors) {
+          const el = await page.$(selector);
+          if (el && await el.isVisible()) {
+            await humanClick(page, selector, config.behavior);
+            return true;
+          }
+        }
+      }
+    }
+  } catch {}
+
   return false;
 }
 
 async function dismissPopups(page: Page): Promise<void> {
-  // Try to dismiss cookie consent
-  try {
-    await page.click(SELECTORS.generic.cookieConsent, { timeout: 2000 });
-  } catch {}
+  // Wait a moment for lazy-loaded popups to render
+  await page.waitForTimeout(2000);
 
-  // Try to dismiss any popup
-  try {
-    await page.click(SELECTORS.generic.popupDismiss, { timeout: 2000 });
-  } catch {}
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    // Try to dismiss cookie consent
+    try {
+      const consentBtn = await page.$(SELECTORS.generic.cookieConsent);
+      if (consentBtn && await consentBtn.isVisible()) {
+        await consentBtn.click({ timeout: 2000 });
+        await page.waitForTimeout(500);
+      }
+    } catch {}
 
-  // Try to close any modal
-  try {
-    await page.click(SELECTORS.generic.modalClose, { timeout: 1000 });
-  } catch {}
+    // Try to dismiss any popup
+    try {
+      const dismissBtn = await page.$(SELECTORS.generic.popupDismiss);
+      if (dismissBtn && await dismissBtn.isVisible()) {
+        await dismissBtn.click({ timeout: 2000 });
+        await page.waitForTimeout(500);
+      }
+    } catch {}
+
+    // Try to close any modal
+    try {
+      const closeBtn = await page.$(SELECTORS.generic.modalClose);
+      if (closeBtn && await closeBtn.isVisible()) {
+        await closeBtn.click({ timeout: 2000 });
+        await page.waitForTimeout(500);
+      }
+    } catch {}
+  }
 }

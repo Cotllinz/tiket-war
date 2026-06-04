@@ -10,12 +10,12 @@
 export const SELECTORS = {
   // === LOGIN ===
   login: {
-    // Header login button
-    loginButton: '[data-testid="header-login-button"], button:has-text("Masuk"), a:has-text("Masuk")',
+    // Header login button or popup login button
+    loginButton: '[data-testid="header-login-button"], button:has-text("Masuk"), a:has-text("Masuk"), button:has-text("Log in"), button:has-text("Login")',
     // Email/Phone input on login page
     emailInput: 'input[type="email"], input[name="email"], input[placeholder*="email" i], input[type="tel"], input[name="phone"], input[name="username"], input[placeholder*="nomor hp" i], input[placeholder*="nomor" i]',
     // Option button to login with email or phone (avoid matching container divs that might include Apple login)
-    phoneEmailLoginOptionButton: 'button:has-text("Nomor HP"), button:has-text("nomor HP"), button:has-text("No. HP"), button:has-text("no. hp"), a:has-text("Nomor HP"), div[role="button"]:has-text("Nomor HP")',
+    phoneEmailLoginOptionButton: 'button:has-text("nomor HP atau email"), div[role="button"]:has-text("nomor HP atau email"), button:has-text("Nomor HP"), button:has-text("nomor HP"), button:has-text("No. HP"), button:has-text("no. hp"), a:has-text("Nomor HP"), div[role="button"]:has-text("Nomor HP")',
     // Password input
     passwordInput: 'input[type="password"], input[name="password"]',
     // Submit login button
