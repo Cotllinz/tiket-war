@@ -5,8 +5,13 @@
 
 # === ACCOUNTS (multiple account support) ===
 accounts:
-  - phone: "087777284423"
+  - email: "akun1@gmail.com"
+    password: "password_akun1"
     presale_code: "BZ123456789"
+  # - email: "akun2@gmail.com"
+  #   password: "password_akun2"
+  #   presale_code: "BZ987654321"
+  # Tambahkan akun lainnya di sini...
 
 # === EVENT CONFIG ===
 event:
@@ -16,11 +21,6 @@ event:
   war_start_time: "2026-06-05T12:00:00+07:00"
   # Buka browser berapa menit sebelum war
   pre_war_minutes: 10
-  # Flags for testing:
-  is_test: true
-  test_url: "https://www.tiket.com/id-id/to-do/senja-teduh-pelita-weekend?utm_page=toDoSearchResult"
-  test_category_priority:
-    - "BALKON BELAKANG"
 
 # === TICKET PREFERENCES ===
 ticket:

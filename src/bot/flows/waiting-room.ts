@@ -23,12 +23,11 @@ export async function waitingRoomFlow(
   workerId: string,
   onStatusUpdate?: (status: WaitingRoomResult) => void
 ): Promise<WaitingRoomResult> {
-  const url = config.event.is_test && config.event.test_url ? config.event.test_url : config.event.url;
-  logger.info({ phase: 'WAITING_ROOM' }, `Navigasi ke halaman event: ${url}`);
+  logger.info({ phase: 'WAITING_ROOM' }, `Navigasi ke halaman event: ${config.event.url}`);
 
   try {
     // Navigate to event page
-    await page.goto(url, {
+    await page.goto(config.event.url, {
       waitUntil: 'domcontentloaded',
       timeout: 60000,
     });

@@ -55,11 +55,8 @@ export async function ticketSelectFlow(
 
     // Step 4: Try each category in priority order
     let selectedCategory: string | null = null;
-    const categories = config.event.is_test && config.event.test_category_priority 
-      ? config.event.test_category_priority 
-      : config.ticket.category_priority;
 
-    for (const category of categories) {
+    for (const category of config.ticket.category_priority) {
       logger.info({ phase: 'TICKET_SELECT' }, `Mencoba kategori: ${category}...`);
 
       const result = await trySelectAndVerifyCategory(page, category, account, config, logger, workerId);

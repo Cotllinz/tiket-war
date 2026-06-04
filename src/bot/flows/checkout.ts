@@ -1,5 +1,5 @@
 import type { Page } from 'playwright';
-import type { WarConfig, Buyer } from '../../config/loader.js';
+import type { WarConfig } from '../../config/loader.js';
 import { SELECTORS } from '../utils/selectors.js';
 import { humanClick, humanType, humanDelay, humanScroll, waitForPageReady } from '../stealth/human-like.js';
 import { takeScreenshot } from '../utils/screenshot.js';
@@ -38,19 +38,11 @@ export async function checkoutFlow(
     await waitForCheckoutForm(page, logger);
 
     // Step 2: Fill buyer information for each ticket
-    const rawBuyers = config.buyers.slice(0, config.ticket.quantity);
+    const buyers = config.buyers.slice(0, config.ticket.quantity);
     
-    for (let i = 0; i < rawBuyers.length; i++) {
-      const rawBuyer = rawBuyers[i];
-      const buyer: Buyer = {
-        full_name: getBuyerValue('full_name', rawBuyer.full_name),
-        identity_number: getBuyerValue('identity_number', rawBuyer.identity_number),
-        email: getBuyerValue('email', rawBuyer.email),
-        phone: getBuyerValue('phone', rawBuyer.phone),
-        identity_type: rawBuyer.identity_type
-      };
-
-      logger.info({ phase: 'CHECKOUT' }, `Mengisi data pemesan ${i + 1}/${rawBuyers.length}: ${buyer.full_name} (${buyer.identity_number})`);
+    for (let i = 0; i < buyers.length; i++) {
+      const buyer = buyers[i];
+      logger.info({ phase: 'CHECKOUT' }, `Mengisi data pemesan ${i + 1}/${buyers.length}: ${buyer.full_name}`);
 
       // Try to find attendee-specific form section
       const attendeeFormSelector = SELECTORS.checkout.attendeeForm(i);
@@ -189,50 +181,6 @@ async function fillBuyerForm(
     scoped('input[name*="tel" i]'),
     scoped('input[autocomplete="tel"]'),
   ], buyer.phone, config, logger, 'Phone');
-
-  // Select Title/Salutation (Tuan/Nyonya/Nona) if it exists
-  try {
-    const titleSelectors = [
-      scoped('select[name*="title" i]'),
-      scoped('select[name*="salutation" i]'),
-      scoped('select[name*="panggilan" i]'),
-      scoped('select[name*="gender" i]'),
-    ];
-    for (const sel of titleSelectors) {
-      const titleSelect = await page.$(sel);
-      if (titleSelect && await titleSelect.isVisible()) {
-        const options = await titleSelect.$$eval('option', (opts) => opts.map(o => o.value));
-        const preferred = options.find(o => /mr/i.test(o) || /tuan/i.test(o)) || options[1] || options[0];
-        if (preferred) {
-          await titleSelect.selectOption(preferred);
-          logger.info({ phase: 'CHECKOUT' }, `  Salutation selected: ${preferred} ✅`);
-        }
-        break;
-      }
-    }
-  } catch {}
-
-  // Select Nationality if it exists
-  try {
-    const nationalitySelectors = [
-      scoped('select[name*="nationality" i]'),
-      scoped('select[name*="negara" i]'),
-      scoped('select[name*="country" i]'),
-    ];
-    for (const sel of nationalitySelectors) {
-      const natSelect = await page.$(sel);
-      if (natSelect && await natSelect.isVisible()) {
-        const options = await natSelect.$$eval('option', (opts) => opts.map(o => ({ value: o.value, text: o.textContent })));
-        const idOption = options.find(o => /indonesia/i.test(o.text || '') || /ID/i.test(o.value || ''));
-        const preferred = idOption ? idOption.value : (options[1]?.value || options[0]?.value);
-        if (preferred) {
-          await natSelect.selectOption(preferred);
-          logger.info({ phase: 'CHECKOUT' }, `  Nationality selected: ${preferred} ✅`);
-        }
-        break;
-      }
-    }
-  } catch {}
 
   // Select identity type (if dropdown exists)
   try {
@@ -411,41 +359,4 @@ async function clickContinueButton(page: Page, config: WarConfig, logger: any): 
   } catch {}
 
   throw new Error('Tidak bisa menemukan tombol Lanjut/Bayar');
-}
-
-/**
- * Helper to generate random dummy buyer values if placeholders are used in the config.
- */
-function getBuyerValue(field: keyof Buyer, rawValue: string): string {
-  const isPlaceholderName = rawValue.includes('NAMA LENGKAP') || rawValue.includes('SESUAI KTP') || rawValue.includes('KEDUA');
-  const isPlaceholderId = rawValue.includes('3201234567890001') || rawValue.includes('3201234567890002') || rawValue.includes('123456789');
-  const isPlaceholderEmail = rawValue.includes('email@gmail.com') || rawValue.includes('email2@gmail.com');
-  const isPlaceholderPhone = rawValue.includes('081234567890') || rawValue.includes('081234567891');
-
-  if (field === 'full_name' && isPlaceholderName) {
-    const firstNames = ['Budi', 'Joko', 'Andi', 'Siti', 'Dewi', 'Rudi', 'Galeh', 'Bambang', 'Wawan'];
-    const lastNames = ['Prasetyo', 'Santoso', 'Hidayat', 'Wibowo', 'Kusuma', 'Siregar', 'Setiawan'];
-    const fn = firstNames[Math.floor(Math.random() * firstNames.length)];
-    const ln = lastNames[Math.floor(Math.random() * lastNames.length)];
-    return `${fn} ${ln}`;
-  }
-  if (field === 'identity_number' && isPlaceholderId) {
-    let nik = '3201';
-    for (let i = 0; i < 12; i++) {
-      nik += Math.floor(Math.random() * 10).toString();
-    }
-    return nik;
-  }
-  if (field === 'email' && isPlaceholderEmail) {
-    const rand = Math.floor(Math.random() * 10000);
-    return `testbuyer${rand}@gmail.com`;
-  }
-  if (field === 'phone' && isPlaceholderPhone) {
-    let phone = '0878';
-    for (let i = 0; i < 8; i++) {
-      phone += Math.floor(Math.random() * 10).toString();
-    }
-    return phone;
-  }
-  return rawValue;
 }

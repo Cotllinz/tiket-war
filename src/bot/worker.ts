@@ -70,7 +70,7 @@ export class Worker extends EventEmitter {
 
     this.status = {
       id: this.id,
-      accountEmail: account.email || account.phone || '',
+      accountEmail: account.email,
       phase: 'idle',
       message: 'Menunggu...',
     };
@@ -98,25 +98,9 @@ export class Worker extends EventEmitter {
       // Start screenshot capture loop
       this.startScreenshotCapture();
 
-      // Step 2: Login
-      const loginIdentifier = this.account.phone || this.account.email || 'unknown';
-      this.updateStatus('logging-in', `Melakukan login untuk ${loginIdentifier}...`);
-      const loginResult = await loginFlow(
-        this.page, this.account, this.config, this.logger, this.id
-      );
-
-      if (loginResult.needsOtp) {
-        this.updateStatus('otp-required', 'Meminta OTP. Silakan masukkan OTP di dashboard.', {
-          accountEmail: loginIdentifier
-        });
-        
-        // Wait for OTP to be submitted via dashboard
-        await this.waitForOtp();
-        
-        if (!this.running) return null;
-      } else if (!loginResult.success) {
-        throw new Error(loginResult.error || 'Login gagal');
-      }
+      // Step 2: Login - SKIPPED AS PER REQUEST
+      this.updateStatus('navigating', `Login Skipped: ${this.account.email}`);
+      const loginResult = { success: true, needsOtp: false, error: null };
 
       if (!this.running) return null;
 
