@@ -21,7 +21,8 @@ export async function loginFlow(
   logger: any,
   workerId: string
 ): Promise<LoginResult> {
-  logger.info({ phase: 'LOGIN' }, `Memulai login untuk ${account.email}...`);
+  const identifier = account.phone || account.email;
+  logger.info({ phase: 'LOGIN' }, `Memulai login untuk ${identifier}...`);
 
   try {
     // Step 1: Navigate to tiket.com
@@ -54,17 +55,22 @@ export async function loginFlow(
     await page.waitForSelector(SELECTORS.login.emailInput, { timeout: 10000 }).catch(() => {});
     
     // Some sites have email-first flow
-    // Try email login tab first
-    try {
-      await page.click(SELECTORS.login.emailLoginTab, { timeout: 3000 });
-      await humanDelay(config.behavior);
-    } catch {
-      // Email tab might not exist, continue
+    // Try email login tab first (only if using email)
+    if (account.email) {
+      try {
+        await page.click(SELECTORS.login.emailLoginTab, { timeout: 3000 });
+        await humanDelay(config.behavior);
+      } catch {
+        // Email tab might not exist, continue
+      }
     }
 
-    // Step 5: Enter email
-    logger.info({ phase: 'LOGIN' }, `Memasukkan email: ${account.email}`);
-    await humanType(page, SELECTORS.login.emailInput, account.email, config.behavior);
+    // Step 5: Enter identifier (email or phone)
+    if (!identifier) {
+      throw new Error('No email or phone number provided for login');
+    }
+    logger.info({ phase: 'LOGIN' }, `Memasukkan email/no HP: ${identifier}`);
+    await humanType(page, SELECTORS.login.emailInput, identifier, config.behavior);
     await humanDelay(config.behavior);
 
     // Try clicking continue (some sites have 2-step login)
@@ -76,14 +82,18 @@ export async function loginFlow(
       // Continue button might not exist, password might be on same page
     }
 
-    // Step 6: Enter password
-    logger.info({ phase: 'LOGIN' }, 'Memasukkan password...');
-    try {
-      await page.waitForSelector(SELECTORS.login.passwordInput, { timeout: 5000 });
-      await humanType(page, SELECTORS.login.passwordInput, account.password, config.behavior);
-      await humanDelay(config.behavior);
-    } catch {
-      logger.warn({ phase: 'LOGIN' }, 'Password field tidak ditemukan, mungkin flow OTP');
+    // Step 6: Enter password (only if password is provided)
+    if (account.password) {
+      logger.info({ phase: 'LOGIN' }, 'Memasukkan password...');
+      try {
+        await page.waitForSelector(SELECTORS.login.passwordInput, { timeout: 5000 });
+        await humanType(page, SELECTORS.login.passwordInput, account.password, config.behavior);
+        await humanDelay(config.behavior);
+      } catch {
+        logger.warn({ phase: 'LOGIN' }, 'Password field tidak ditemukan, mungkin flow OTP');
+      }
+    } else {
+      logger.info({ phase: 'LOGIN' }, 'Tidak ada password yang dikonfigurasi, melewati input password.');
     }
 
     // Step 7: Submit login

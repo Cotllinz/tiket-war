@@ -5,8 +5,9 @@ import { resolve } from 'path';
 
 // === Schema Definitions ===
 const AccountSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(1),
+  email: z.string().email().optional(),
+  phone: z.string().optional(),
+  password: z.string().optional(),
   presale_code: z.string().optional(),
 });
 
@@ -15,6 +16,9 @@ const EventSchema = z.object({
   name: z.string(),
   war_start_time: z.string(),
   pre_war_minutes: z.number().default(10),
+  is_test: z.boolean().default(false),
+  test_url: z.string().url().optional(),
+  test_category_priority: z.array(z.string()).optional(),
 });
 
 const TicketSchema = z.object({

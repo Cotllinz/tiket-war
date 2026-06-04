@@ -30,7 +30,7 @@ async function main() {
   const orchestrator = new Orchestrator(config);
 
   orchestrator.on('workerStatusUpdate', (status) => {
-    const emoji = {
+    const emoji: Record<string, string> = {
       'idle': '💤', 'starting': '🚀', 'logging-in': '🔑',
       'otp-required': '🔐', 'navigating': '🌐', 'in-waiting-room': '⏳',
       'selecting-ticket': '🎫', 'checking-out': '🛒', 'selecting-payment': '💳',
