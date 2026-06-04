@@ -1,0 +1,93 @@
+# ===========================
+# TICKET WAR CONFIGURATION
+# BABYMONSTER CHOOM IN JAKARTA
+# ===========================
+
+# === ACCOUNTS (multiple account support) ===
+accounts:
+  - email: "akun1@gmail.com"
+    password: "password_akun1"
+    presale_code: "BZ123456789"
+  - email: "akun2@gmail.com"
+    password: "password_akun2"
+    presale_code: "BZ987654321"
+  # Tambahkan akun lainnya di sini...
+
+# === EVENT CONFIG ===
+event:
+  url: "https://babymonsterinjakarta2026.com/"
+  name: "BABYMONSTER CHOOM IN JAKARTA 2026"
+  # General Sale: 5 Juni 2026, 12:00 WIB
+  war_start_time: "2026-06-05T12:00:00+07:00"
+  # Buka browser berapa menit sebelum war
+  pre_war_minutes: 10
+
+# === TICKET PREFERENCES ===
+ticket:
+  # Urutan prioritas kategori (sesuai request: CAT 3/4 utama, CAT 2 optional)
+  category_priority:
+    - "CAT 3"
+    - "CAT 4"
+    - "CAT 2"
+  # Jumlah tiket per akun
+  quantity: 2
+  # Tanggal show
+  preferred_date: "2026-10-17"
+
+# === BUYER DATA (hardcoded) ===
+buyers:
+  # Data untuk tiket 1
+  - full_name: "NAMA LENGKAP SESUAI KTP"
+    identity_number: "3201234567890001"
+    email: "email@gmail.com"
+    phone: "081234567890"
+    identity_type: "KTP"
+  # Data untuk tiket 2 (jika beli 2 tiket)
+  - full_name: "NAMA LENGKAP KEDUA"
+    identity_number: "3201234567890002"
+    email: "email2@gmail.com"
+    phone: "081234567891"
+    identity_type: "KTP"
+
+# === PAYMENT CONFIG ===
+payment:
+  # Primary: "qris" | "mandiri"
+  method: "qris"
+  fallback_method: "mandiri"
+
+# === BEHAVIOR CONFIG ===
+behavior:
+  # false = tampilkan browser (recommended untuk monitoring)
+  headless: false
+  # Human-like delays (ms)
+  min_delay: 200
+  max_delay: 600
+  # Human mouse movement
+  human_mouse: true
+  # Typing speed (ms per char)
+  min_type_delay: 30
+  max_type_delay: 80
+  # Retry settings
+  max_retries: 5
+  retry_delay: 2000
+  # Screenshot interval (ms) — untuk dashboard
+  screenshot_interval: 3000
+
+# === PROXY CONFIG ===
+proxy:
+  enabled: false
+  # List of proxies (round-robin per account)
+  # Format: protocol://user:pass@host:port
+  list:
+    - "http://user:pass@proxy1.example.com:8080"
+    - "http://user:pass@proxy2.example.com:8080"
+
+# === NOTIFICATION ===
+notification:
+  sound_alert: true
+  whatsapp:
+    enabled: true
+    # Phone number with country code (tanpa +)
+    phone: "6281234567890"
+    # CallMeBot API key (get from https://www.callmebot.com/blog/free-api-whatsapp-messages/)
+    api_key: "your_api_key"

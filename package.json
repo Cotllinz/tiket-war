@@ -1,0 +1,40 @@
+{
+  "name": "tiket-war",
+  "version": "1.0.0",
+  "description": "Ticket War Automation for tiket.com - BABYMONSTER CHOOM IN JAKARTA 2026",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "bot": "tsx src/bot-only.ts",
+    "dashboard": "concurrently \"tsx src/server/app.ts\" \"cd dashboard && npm run dev\"",
+    "test": "vitest run",
+    "test:stealth": "tsx src/bot/stealth/test-stealth.ts",
+    "dry-run": "tsx src/dry-run.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "playwright": "^1.52.0",
+    "playwright-extra": "^4.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "express": "^4.21.0",
+    "ws": "^8.18.0",
+    "yaml": "^2.6.0",
+    "pino": "^9.5.0",
+    "pino-pretty": "^11.3.0",
+    "dotenv": "^16.4.0",
+    "zod": "^3.24.0",
+    "node-notifier": "^10.0.1",
+    "chalk": "^5.4.0",
+    "ora": "^8.1.0",
+    "concurrently": "^9.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "@types/node": "^22.0.0",
+    "@types/express": "^5.0.0",
+    "@types/ws": "^8.5.0",
+    "tsx": "^4.19.0",
+    "vitest": "^3.0.0"
+  }
+}
