@@ -4,4 +4,3 @@ dist/
 screenshots/
 logs/
 *.log
-dashboard/node_modules/
