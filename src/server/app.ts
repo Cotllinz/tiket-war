@@ -210,7 +210,7 @@ server.listen(PORT, () => {
   console.log(`\n📋 Event: ${config.event.name}`);
   console.log(`⏰ War time: ${config.event.war_start_time}`);
   console.log(`👤 Accounts: ${config.accounts.length}`);
-  console.log(`\nOpen dashboard at http://localhost:3000\n`);
+  console.log(`\nOpen dashboard at http://localhost:${PORT}\n`);
 });
 
 export { app, server };
